@@ -89,39 +89,3 @@ via l'API du pod correspondant :
 kubectl port-forward pod/<nom-du-pod-leader> 8080:8080
 curl localhost:8080/status
 ```
-
-## Script de démonstration
-
-1. **Montrer l'état stable** : `kubectl get pods -o wide` (1 pod orchestrateur
-   par nœud), puis `kubectl get lease cicd-orchestrator-leader -o yaml`
-   (un leader désigné), puis `curl` sur `/status` du pod leader.
-
-2. **Déclencher un déploiement réel** : modifie `demo-api/app.py` (par exemple
-   le message retourné dans `/`), commit et push sur `main`. Montre le
-   pipeline tourner dans l'onglet Actions du dépôt.
-
-3. **Observer la réconciliation automatique** : au bout de 20 secondes
-   maximum (`POLL_INTERVAL_SECONDS`), les logs du pod leader
-   (`kubectl logs -f <pod-leader>`) affichent la détection de la nouvelle
-   image et la mise à jour du Deployment. Confirme avec :
-   ```bash
-   kubectl get pods -l app=demo-api
-   curl http://<ip-noeud>:<nodeport>/version
-   ```
-   Le nouveau SHA de commit doit apparaître.
-
-4. **Couper le nœud leader** : identifie sur quel nœud tourne le pod leader
-   actuel, puis éteins cette VM (comme en partie 2).
-
-5. **Observer la réélection** : depuis un nœud survivant,
-   ```bash
-   kubectl get lease cicd-orchestrator-leader -o yaml
-   ```
-   Après au plus `LEASE_DURATION_SECONDS` (15s), le `holderIdentity` bascule
-   vers un pod tournant sur un autre nœud.
-
-6. **Prouver la continuité de service** : refais un commit/push sur
-   `demo-api`, et montre que le déploiement continue de se faire
-   automatiquement — piloté cette fois par le nouveau leader — malgré la
-   panne du nœud initial.
-
