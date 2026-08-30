@@ -1,0 +1,80 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: cicd-orchestrator
+  namespace: default
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: cicd-orchestrator
+  template:
+    metadata:
+      labels:
+        app: cicd-orchestrator
+    spec:
+      serviceAccountName: cicd-orchestrator
+      # Force la présence d'exactement 1 réplica par nœud, pour bien
+      # matérialiser l'idée d'un orchestrateur réparti sur les 3 masters hybrides.
+      affinity:
+        podAntiAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            - labelSelector:
+                matchLabels:
+                  app: cicd-orchestrator
+              topologyKey: "kubernetes.io/hostname"
+      # Nécessaire car les nœuds sont control-plane (taint NoSchedule retiré
+      # en partie 2, mais les tolerations explicites restent une bonne pratique).
+      tolerations:
+        - key: "node-role.kubernetes.io/control-plane"
+          operator: "Exists"
+          effect: "NoSchedule"
+      containers:
+        - name: orchestrator
+          image: ghcr.io/fayelise/k8s-cicd-election/orchestrator:latest
+          ports:
+            - containerPort: 8080
+          env:
+            - name: POD_NAME
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.name
+            - name: NAMESPACE
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.namespace
+            - name: GITHUB_OWNER
+              value: "fayelise"
+            - name: IMAGE_REPO
+              value: "fayelise/k8s-cicd-election/demo-api"
+            - name: DEMO_DEPLOYMENT
+              value: "demo-api"
+            - name: DEMO_CONTAINER
+              value: "demo-api"
+            - name: POLL_INTERVAL_SECONDS
+              value: "20"
+            - name: LEASE_DURATION_SECONDS
+              value: "15"
+          readinessProbe:
+            httpGet:
+              path: /healthz
+              port: 8080
+            initialDelaySeconds: 3
+          livenessProbe:
+            httpGet:
+              path: /healthz
+              port: 8080
+            initialDelaySeconds: 5
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: cicd-orchestrator
+  namespace: default
+spec:
+  selector:
+    app: cicd-orchestrator
+  ports:
+    - port: 8080
+      targetPort: 8080
+  type: ClusterIP
