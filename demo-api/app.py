@@ -11,7 +11,7 @@ VERSION = os.environ.get("APP_VERSION", "dev")
 
 @app.route("/")
 def home():
-    return jsonify(message="Hello from the CI/CD demo API!", version=VERSION)
+    return jsonify(message="Hello from the CI/CD demo API! v2", version=VERSION)
 
 
 @app.route("/version")
