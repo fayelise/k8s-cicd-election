@@ -90,3 +90,4 @@ kubectl port-forward pod/<nom-du-pod-leader> 8080:8080
 curl localhost:8080/status
 ```
 
+
