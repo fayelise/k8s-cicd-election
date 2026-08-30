@@ -7,6 +7,14 @@ on:
       - "orchestrator/**"
       - ".github/workflows/ci-orchestrator.yml"
 
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - "orchestrator/**"
+      - ".github/workflows/ci-orchestrator.yml"
+
 env:
   REGISTRY: ghcr.io
   IMAGE_NAME: ${{ github.repository }}/orchestrator

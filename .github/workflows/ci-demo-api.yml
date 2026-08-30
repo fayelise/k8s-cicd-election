@@ -7,6 +7,14 @@ on:
       - "demo-api/**"
       - ".github/workflows/ci-demo-api.yml"
 
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - "demo-api/**"
+      - ".github/workflows/ci-demo-api.yml"
+
 env:
   REGISTRY: ghcr.io
   IMAGE_NAME: ${{ github.repository }}/demo-api
