@@ -1,11 +1,11 @@
 name: CI/CD - demo-api (build, test, publish)
 
-on:
-  push:
-    branches: [main]
-    paths:
-      - "demo-api/**"
-      - ".github/workflows/ci-demo-api.yml"
+# on:
+#   push:
+#     branches: [main]
+#     paths:
+#       - "demo-api/**"
+#       - ".github/workflows/ci-demo-api.yml"
 
 on:
   workflow_dispatch:

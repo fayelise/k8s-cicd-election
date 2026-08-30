@@ -1,11 +1,11 @@
 name: CI - orchestrator (build, publish)
 
-on:
-  push:
-    branches: [main]
-    paths:
-      - "orchestrator/**"
-      - ".github/workflows/ci-orchestrator.yml"
+# on:
+#   push:
+#     branches: [main]
+#     paths:
+#       - "orchestrator/**"
+#       - ".github/workflows/ci-orchestrator.yml"
 
 on:
   workflow_dispatch:
